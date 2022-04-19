@@ -11,19 +11,26 @@
 <template>
   <div>
     <header class="home-header wrap" :class="{'active' : headerScroll}">
+      <!-- 点击图表跳转到分类菜单页面 -->
       <router-link tag="i" to="./category"><i class="nbicon nbmenu2"></i></router-link>
       <div class="header-search">
         <span class="app-name">新蜂商城</span>
         <i class="iconfont icon-search"></i>
-        <router-link tag="span" class="search-title" to="./product-list?from=home">山河无恙，人间皆安</router-link>
+        <!-- 点击跳转到搜索商品页面 -->
+        <router-link tag="span" class="search-title" to="./product-list?from=home">请输入搜索关键字</router-link>
       </div>
+      <!-- 未登录，点击跳转到登录页面 -->
       <router-link class="login" tag="span" to="./login" v-if="!isLogin">登录</router-link>
+      <!-- 已登录，点击跳转到我的页面 -->
       <router-link class="login" tag="span" to="./user" v-else>
         <van-icon name="manager-o" />
       </router-link>
     </header>
+    <!-- 底部栏（首页-分类-购物车-我的） -->
     <nav-bar />
+    <!-- 商品轮播图 -->
     <swiper :list="swiperList"></swiper>
+    <!-- 商品分类 -->
     <div class="category-list">
       <div v-for="item in categoryList" v-bind:key="item.categoryId" @click="tips">
         <img :src="item.imgUrl">
@@ -32,9 +39,12 @@
     </div>
     <div class="good">
       <header class="good-header">新品上线</header>
+      <!-- 骨架屏--占位 -->
       <van-skeleton title :row="3" :loading="loading">
         <div class="good-box">
+          <!-- 商品--点击跳转到商品详情页 -->
           <div class="good-item" v-for="item in newGoodses" :key="item.goodsId" @click="goToDetail(item)">
+            <!-- 对图片路径进行处理 -->
             <img :src="$filters.prefix(item.goodsCoverImg)" alt="">
             <div class="good-desc">
               <div class="title">{{ item.goodsName }}</div>
@@ -145,7 +155,9 @@ export default {
       ],
       loading: true
     })
+    
     onMounted(async () => {
+      // 判断是否登录
       const token = getLocal('token')
       if (token) {
         state.isLogin = true
@@ -156,26 +168,31 @@ export default {
         message: '加载中...',
         forbidClick: true
       });
+      // 获取首页数据（轮播图、最新上线商品、热销商品、最新推荐）
       const { data } = await getHome()
       state.swiperList = data.carousels
       state.newGoodses = data.newGoodses
       state.hots = data.hotGoodses
       state.recommends = data.recommendGoodses
+      // 拿到接口数据返回后，骨架屏loading=false
       state.loading = false
+      // 页面loading结束
       Toast.clear()
     })
 
     nextTick(() => {
+      // 页面向上翻动100px，头部导航条由透明变为青绿色
       window.addEventListener('scroll', () => {
         let scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
         scrollTop > 100 ? state.headerScroll = true : state.headerScroll = false
       })
     })
 
+    // 跳转到商品详情页面
     const goToDetail = (item) => {
       router.push({ path: `/product/${item.goodsId}` })
     }
-
+    
     const tips = () => {
       Toast('敬请期待');
     }

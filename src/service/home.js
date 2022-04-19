@@ -1,3 +1,11 @@
+/*
+ * @Description: 
+ * @version: 
+ * @Author: simpletoyou
+ * @Date: 2022-04-15 10:56:44
+ * @LastEditors: simpletoyou
+ * @LastEditTime: 2022-04-19 15:45:36
+ */
 /**
  * 严肃声明：
  * 开源版本请务必保留此注释头信息，若删除我方将保留所有法律责任追究！
@@ -9,6 +17,7 @@
 
 import axios from '../utils/axios'
 
+// 获取首页数据
 export function getHome() {
   return axios.get('/index-infos');
 }

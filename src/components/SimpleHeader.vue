@@ -1,4 +1,12 @@
 <!--
+ * @Description: 
+ * @version: 
+ * @Author: simpletoyou
+ * @Date: 2022-04-15 10:56:44
+ * @LastEditors: simpletoyou
+ * @LastEditTime: 2022-04-19 16:18:28
+-->
+<!--
  * 严肃声明：
  * 开源版本请务必保留此注释头信息，若删除我方将保留所有法律责任追究！
  * 本系统已申请软件著作权，受国家版权局知识产权以及国家计算机软件著作权保护！
@@ -10,7 +18,8 @@
 
 <template>
   <header class="simple-header van-hairline--bottom">
-    <i v-if="!isback" class="nbicon nbfanhui" @click="goBack"></i>
+    
+    <i v-if="!hasnoback" class="nbicon nbfanhui" @click="goBack"></i>
     <i v-else>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</i>
     <div class="simple-header-name">{{ name }}</div>
     <i class="nbicon nbmore"></i>
@@ -19,62 +28,64 @@
 </template>
 
 <script>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 export default {
   props: {
     name: {
       type: String,
-      default: ''
+      default: "",
     },
     back: {
       type: String,
-      default: ''
+      default: "",
     },
     noback: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
-  emits: ['callback'],
+  emits: ["callback"],
   setup(props, ctx) {
-    const isback = ref(props.noback)
-    const router = useRouter()
+    const hasnoback = ref(props.noback);
+    const router = useRouter();
     const goBack = () => {
       if (!props.back) {
-        router.go(-1)
+        // 未指定返回页面，返回上一页
+        router.go(-1);
       } else {
-        router.push({ path: props.back })
+        // 根据传过来的back值，点击返回到指定页面
+        router.push({ path: props.back });
       }
-      ctx.emit('callback')
-    }
+      ctx.emit("callback");
+    };
     return {
       goBack,
-      isback
-    }
-  }
-}
+      hasnoback,
+    };
+  },
+};
 </script>
 
 <style lang="less" scoped>
-  @import '../common/style/mixin';
-  .simple-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 10000;
-    .fj();
-    .wh(100%, 44px);
-    line-height: 44px;
-    padding: 0 10px;
-    .boxSizing();
-    color: #252525;
-    background: #fff;
-    .simple-header-name {
-      font-size: 14px;
-    }
+@import "../common/style/mixin";
+.simple-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  .fj();
+  .wh(100%, 44px);
+  line-height: 44px;
+  padding: 0 10px;
+  .boxSizing();
+  color: #252525;
+  background: #fff;
+  .simple-header-name {
+    font-size: 14px;
   }
-  .block {
-    height: 44px;
-  }
+}
+.block {
+  height: 44px;
+}
 </style>

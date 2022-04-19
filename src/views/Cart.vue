@@ -10,6 +10,7 @@
 
 <template>
   <div class="cart-box">
+    <!-- 购物车页面无返回上一页 -->
     <s-header :name="'购物车'" :noback="true"></s-header>
     <div class="cart-body">
       <van-checkbox-group @change="groupChange" v-model="result" ref="checkboxGroup">

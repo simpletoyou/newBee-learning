@@ -15,21 +15,24 @@
         <i class="nbicon nbfanhui" @click="goBack"></i>
         <div class="header-search">
           <i class="nbicon nbSearch"></i>
-          <input
-            type="text"
-            class="search-title"
-            v-model="keyword"/>
+          <input type="text" class="search-title" v-model="keyword" />
         </div>
         <span class="search-btn" @click="getSearch">搜索</span>
       </header>
-      <van-tabs type="card" color="#1baeae" @click="changeTab" >
+      <van-tabs type="card" color="#1baeae" @click="changeTab">
         <van-tab title="推荐" name=""></van-tab>
         <van-tab title="新品" name="new"></van-tab>
         <van-tab title="价格" name="price"></van-tab>
       </van-tabs>
     </div>
+    <!-- 下拉刷新时，执行onRefresh事件 -->
     <div class="content">
-      <van-pull-refresh v-model="refreshing" @refresh="onRefresh" class="product-list-refresh">
+      <van-pull-refresh
+        v-model="refreshing"
+        @refresh="onRefresh"
+        class="product-list-refresh"
+      >
+        <!-- 列表绑定加载更多数据方法 -->
         <van-list
           v-model:loading="loading"
           :finished="finished"
@@ -39,16 +42,27 @@
         >
           <!-- <p v-for="item in list" :key="item">{{ item }}</p> -->
           <template v-if="productList.length">
-            <div class="product-item" v-for="(item, index) in productList" :key="index" @click="productDetail(item)">
+            <!-- 点击跳转到商品详情页 -->
+            <div
+              class="product-item"
+              v-for="(item, index) in productList"
+              :key="index"
+              @click="productDetail(item)"
+            >
               <img :src="$filters.prefix(item.goodsCoverImg)" />
               <div class="product-info">
-                <p class="name">{{item.goodsName}}</p>
-                <p class="subtitle">{{item.goodsIntro}}</p>
-                <span class="price">￥ {{item.sellingPrice}}</span>
+                <p class="name">{{ item.goodsName }}</p>
+                <p class="subtitle">{{ item.goodsIntro }}</p>
+                <span class="price">￥ {{ item.sellingPrice }}</span>
               </div>
             </div>
           </template>
-          <img class="empty" v-else src="https://s.yezgea02.com/1604041313083/kesrtd.png" alt="搜索">
+          <img
+            class="empty"
+            v-else
+            src="https://s.yezgea02.com/1604041313083/kesrtd.png"
+            alt="搜索"
+          />
         </van-list>
       </van-pull-refresh>
     </div>
@@ -56,15 +70,15 @@
 </template>
 
 <script>
-import { reactive, toRefs } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { search } from '@/service/good'
+import { reactive, toRefs } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { search } from "@/service/good";
 export default {
   setup() {
-    const route = useRoute()
-    const router = useRouter()
+    const route = useRoute();
+    const router = useRouter();
     const state = reactive({
-      keyword: route.query.keyword || '',
+      keyword: route.query.keyword || "",
       searchBtn: false,
       seclectActive: false,
       refreshing: false,
@@ -74,65 +88,84 @@ export default {
       productList: [],
       totalPage: 0,
       page: 1,
-      orderBy: ''
-    })
+      orderBy: "",
+    });
 
     // onMounted(() => {
     //   init()
     // })
 
     const init = async () => {
-      const { categoryId } = route.query
+      const { categoryId } = route.query;
+      // 如果是从商品类型页面选择类型后进入查询，则有categoryId
+      // 如果没有categoryId，且没有搜索关键字，则结束页面loading
       if (!categoryId && !state.keyword) {
         // Toast.fail('请输入关键词')
-        state.finished = true
+        state.finished = true;
         state.loading = false;
-        return
+        return;
       }
-      const { data, data: { list } } = await search({ pageNumber: state.page, goodsCategoryId: categoryId, keyword: state.keyword, orderBy: state.orderBy })
-      
-      state.productList = state.productList.concat(list)
-      state.totalPage = data.totalPage
+      // 执行商品搜索方法（请求页序、商品id、关键字、显示类序）
+      const {
+        data,
+        data: { list },
+      } = await search({
+        pageNumber: state.page,
+        goodsCategoryId: categoryId,
+        keyword: state.keyword,
+        orderBy: state.orderBy,
+      });
+      console.log("data", data);
+      console.log("list", list);
+
+      state.productList = state.productList.concat(list);
+      state.totalPage = data.totalPage;
       state.loading = false;
-      if (state.page >= data.totalPage) state.finished = true
-    }
+      if (state.page >= data.totalPage) state.finished = true;
+    };
 
     const goBack = () => {
-      router.go(-1)
-    }
+      router.go(-1);
+    };
 
+    // 跳转到商品详情页
     const productDetail = (item) => {
-      router.push({ path: `/product/${item.goodsId}` })
-    }
+      router.push({ path: `/product/${item.goodsId}` });
+    };
 
+    // 搜索事件--执行刷新方法
     const getSearch = () => {
-      onRefresh()
-    }
+      onRefresh();
+    };
 
     const onLoad = () => {
       if (!state.refreshing && state.page < state.totalPage) {
-        state.page = state.page + 1
+        state.page = state.page + 1;
       }
+      // 页面刷新 数据重置
       if (state.refreshing) {
         state.productList = [];
         state.refreshing = false;
       }
-      init()
-    }
+      // 执行init方法（）
+      init();
+    };
 
+    // 刷新事件--相关数据重置、执行onload方法
     const onRefresh = () => {
-      state.refreshing = true
-      state.finished = false
-      state.loading = true
-      state.page = 1
-      onLoad()
-    }
+      state.refreshing = true;
+      state.finished = false;
+      state.loading = true;
+      state.page = 1;
+      onLoad();
+    };
 
+    // 切换选择推荐、新品、价格
     const changeTab = (name) => {
-      console.log('name', name)
-      state.orderBy = name
-      onRefresh()
-    }
+      console.log("name", name);
+      state.orderBy = name;
+      onRefresh();
+    };
 
     return {
       ...toRefs(state),
@@ -141,57 +174,57 @@ export default {
       getSearch,
       changeTab,
       onLoad,
-      onRefresh
-    }
-  }
-}
+      onRefresh,
+    };
+  },
+};
 </script>
 
 <style lang="less" scoped>
-  @import '../common/style/mixin';
-  .product-list-content {
-    position: fixed;
-    left: 0;
-    top: 0;
+@import "../common/style/mixin";
+.product-list-content {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  background: #fff;
+  .category-header {
+    .fj();
     width: 100%;
-    z-index: 1000;
-    background: #fff;
-    .category-header {
-      .fj();
-      width: 100%;
-      height: 50px;
-      line-height: 50px;
-      padding: 0 15px;
-      .boxSizing();
-      font-size: 15px;
-      color: #656771;
-      z-index: 10000;
-      &.active {
-        background: @primary;
+    height: 50px;
+    line-height: 50px;
+    padding: 0 15px;
+    .boxSizing();
+    font-size: 15px;
+    color: #656771;
+    z-index: 10000;
+    &.active {
+      background: @primary;
+    }
+    .icon-left {
+      font-size: 25px;
+      font-weight: bold;
+    }
+    .header-search {
+      display: flex;
+      width: 76%;
+      height: 20px;
+      line-height: 20px;
+      margin: 10px 0;
+      padding: 5px 0;
+      color: #232326;
+      background: #f7f7f7;
+      .borderRadius(20px);
+      .nbSearch {
+        padding: 0 5px 0 20px;
+        font-size: 17px;
       }
-      .icon-left {
-        font-size: 25px;
-        font-weight: bold;
+      .search-title {
+        font-size: 12px;
+        color: #666;
+        background: #f7f7f7;
       }
-      .header-search {
-        display: flex;
-        width: 76%;
-        height: 20px;
-        line-height: 20px;
-        margin: 10px 0;
-        padding: 5px 0;
-        color: #232326;
-        background: #F7F7F7;
-        .borderRadius(20px);
-        .nbSearch {
-          padding: 0 5px 0 20px;
-          font-size: 17px;
-        }
-        .search-title {
-          font-size: 12px;
-          color: #666;
-          background: #F7F7F7;
-        }
     }
     .icon-More {
       font-size: 20px;
@@ -208,58 +241,58 @@ export default {
     }
   }
 }
-  .content {
-    height: calc(~"(100vh - 70px)");
-    overflow: hidden;
-    overflow-y: scroll; 
-    margin-top: 78px;
-  }
-  .product-list-refresh {
-    .product-item {
-      .fj();
-      width: 100%;
+.content {
+  height: calc(~"(100vh - 70px)");
+  overflow: hidden;
+  overflow-y: scroll;
+  margin-top: 78px;
+}
+.product-list-refresh {
+  .product-item {
+    .fj();
+    width: 100%;
+    height: 120px;
+    padding: 10px 0;
+    border-bottom: 1px solid #dcdcdc;
+    img {
+      width: 140px;
       height: 120px;
-      padding: 10px 0;
-      border-bottom: 1px solid #dcdcdc;
-      img {
-        width: 140px;
-        height: 120px;
-        padding: 0 10px;
-        .boxSizing();
+      padding: 0 10px;
+      .boxSizing();
+    }
+    .product-info {
+      width: 56%;
+      height: 120px;
+      padding: 5px;
+      text-align: left;
+      .boxSizing();
+      p {
+        margin: 0;
       }
-      .product-info {
-          width: 56%;
-          height: 120px;
-          padding: 5px;
-          text-align: left;
-          .boxSizing();
-          p {
-            margin: 0
-          }
-          .name {
-            width: 100%;
-            max-height: 40px;
-            line-height: 20px;
-            font-size: 15px;
-            color: #333;
-            overflow: hidden;
-            text-overflow:ellipsis;
-            white-space: nowrap;
-          }
-          .subtitle {
-            width: 100%;
-            max-height: 20px;
-            padding: 10px 0;
-            line-height: 25px;
-            font-size: 13px;
-            color: #999;
-            overflow: hidden;
-          }
-          .price {
-            color: @primary;
-            font-size: 16px;
-          }
+      .name {
+        width: 100%;
+        max-height: 40px;
+        line-height: 20px;
+        font-size: 15px;
+        color: #333;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
+      .subtitle {
+        width: 100%;
+        max-height: 20px;
+        padding: 10px 0;
+        line-height: 25px;
+        font-size: 13px;
+        color: #999;
+        overflow: hidden;
+      }
+      .price {
+        color: @primary;
+        font-size: 16px;
+      }
+    }
   }
   .empty {
     display: block;

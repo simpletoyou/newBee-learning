@@ -36,6 +36,7 @@
           placeholder="输入验证码"
           v-model="verify"
         >
+        <!-- button 插槽---在输入框尾部插入按钮---图片验证码 -->
           <template #button>
             <vue-img-verify ref="verifyRef" />
           </template>

@@ -15,6 +15,7 @@
         <i class="nbicon nbfanhui" @click="goHome"></i>
         <div class="header-search">
           <i class="nbicon nbSearch"></i>
+          <!-- 商品分类页面，点击跳转到搜索页面 -->
           <router-link tag="span" class="search-title" to="./product-list?from=category">全场50元起步</router-link>
         </div>
         <i class="iconfont icon-More"></i>
@@ -41,6 +42,7 @@
                     <!-- <img class="category-main-img" :src="category.mainImgUrl" v-if="category.mainImgUrl"/> -->
                     <div class="category-list" v-for="(products, index) in category.secondLevelCategoryVOS" :key="index">
                       <p class="catogory-title">{{products.categoryName}}</p>
+                      <!-- 点击类型，跳转到搜索页，搜索该类别数据 -->
                       <div class="product-item" v-for="(product, index) in products.thirdLevelCategoryVOS" :key="index" @click="selectProduct(product)">
                         <img src="//s.weituibao.com/1583591077131/%E5%88%86%E7%B1%BB.png" class="product-img"/>
                         <p v-text="product.categoryName" class="product-title"></p>
@@ -82,6 +84,7 @@ export default {
       let $screenHeight = document.documentElement.clientHeight
       console.log('searchWrap.value', searchWrap.value)
       searchWrap.value.style.height = $screenHeight - 100 + 'px'
+      // 获取商品类型数据
       Toast.loading('加载中...')
       const { data } = await getCategory()
       Toast.clear()
@@ -92,6 +95,7 @@ export default {
       router.push({ path: 'home' })
     }
 
+    // 选择类别栏
     const selectMenu = (index) => {
       state.currentIndex = index
     }

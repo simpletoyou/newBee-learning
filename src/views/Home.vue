@@ -91,6 +91,7 @@ import { useRouter } from 'vue-router'
 import swiper from '@/components/Swiper'
 import navBar from '@/components/NavBar'
 import { getHome } from '@/service/home'
+import web3 from "@/service/web3";
 import { getLocal } from '@/common/js/utils'
 import { Toast } from 'vant'
 import { useStore  } from 'vuex'
@@ -157,6 +158,8 @@ export default {
     })
     
     onMounted(async () => {
+
+      console.log('web3',web3)
       // 判断是否登录
       const token = getLocal('token')
       if (token) {
